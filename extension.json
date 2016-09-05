@@ -30,12 +30,50 @@
             "desc_key": "RAMPDOWN_DURATION_DESC"
         },
         {
+            "name": "DEPLOYMENT_METHOD",
+            "type": "Select",
+            "required": "true",
+            "default_value": "Red Black",
+            "label_key": "DEPLOYMENT_METHOD_KEY",
+            "desc_key": "DEPLOYMENT_METHOD_DESC",
+            "options": [
+                {
+                  "label_key": "RED_BLACK_KEY",
+                  "value": "Red Black"
+                },
+                {
+                  "label_key": "RESOURCE_OPTIMZED_KEY",
+                  "value": "Resource Optimized"
+                }
+            ]
+        },
+        {
             "name": "COMMAND",
             "type": "TextArea",
             "required": "true",
             "default_value": "#!/bin/bash
+#
+# Following code will use active deploy to deploy the new application.
+# Code used is available at https://github.com/Osthanes/update_service
+# and https://github.com/Osthanes/activedeploy_common
+#
+# For details how to use and configure this active deploy toolchain extension, see
+# https://console.ng.bluemix.net/docs/services/ActiveDeploy/updatingapps.html#adpipeline
+#
+# Feel free to fork the code and define environment variable GIT_HOME to use your forked code from
+# https://github.com/${GIT_HOME}/update_service and https://github.com/${GIT_HOME}/activedeploy_common
+#
+# Make sure following variables are defined as environment properties with no values
+# - NAME : Name of new application (Has to be exported in the previous job)
+# - TEST_RESULT_FOR_AD : Variable used to pass the test result of the test phase to the complete phase of active deploy (Has to be set in the test job)
+#
+# Following variables may be defined as environment properties
+# - GROUP_SIZE : Number of instances which are created during initial deployment. Default is 1
+# - CONCURRENT_VERSIONS: Number of additional application versions to keep at the end of deployment. Default is 1
+#
+
 source ${EXT_DIR}/git_util.sh
-git_retry clone https://github.com/Osthanes/update_service.git activedeploy
+git_retry clone https://github.com/IBMActiveDeploy-Toolchain/update_service.git activedeploy
 activedeploy/activedeploy_step_1.sh",
             "label_key": "COMMAND_KEY",
             "desc_key": "COMMAND_DESC"
@@ -52,10 +90,14 @@ activedeploy/activedeploy_step_1.sh",
         "shell": "#!/bin/bash
 
 set +e
+[[ ${DEBUG_EXTENSION} -eq 1 ]] && set -x
 export RAMPUP_DURATION=#RAMPUP_DURATION#
 export RAMPDOWN_DURATION=#RAMPDOWN_DURATION#
+export DEPLOYMENT_METHOD=\"#DEPLOYMENT_METHOD#\"
 export INIT_START_TIME=$(date +\"%s\")
-export GIT_HOME=${GIT_HOME:-Osthanes}
+GIT_HOME=${GIT_HOME:-\"Osthanes\"}
+[[ \"${GIT_HOME}\" == \"Osthanes\" && \"${IDS_URL}\" == *\"stage1\"* ]] && GIT_HOME=\"IBMActiveDeploy-Toolchain\"
+export GIT_HOME
 # OSSC line
 dpkg -l | grep '^ii' > $EXT_DIR/pkglist
 . $EXT_DIR/_init.sh
@@ -66,7 +108,8 @@ if [[ $DEBUG -eq 1 ]]; then
 fi
 INIT_END_TIME=$(date +\"%s\")
 INIT_EST_TIME=$(($INIT_END_TIME-$INIT_START_TIME))
-echo -e \"Init runtime of `date -u -d @\"$INIT_EST_TIME\" +\'%-Mm %-Ss\'`\"# place command into a temp script file
+echo -e \"Init runtime of `date -u -d @\"$INIT_EST_TIME\" +\'%-Mm %-Ss\'`\"
+# place command into a temp script file
 cat > script.sh << '__EOF__'
 #!/bin/bash
 function save_env_vars_on_exit() {
@@ -77,17 +120,19 @@ trap \"save_env_vars_on_exit\" EXIT
 #COMMAND#
 __EOF__
 # call the script in a subscript
-cat script.sh
+[[ ${DEBUG_EXTENSION} -eq 1 ]] && cat script.sh
 /bin/bash -e script.sh
 PIPE_SCR_RESULT=$?
 # restore the saved exported vars
 source $EXT_DIR/save_vars.sh
 if [ $PIPE_SCR_RESULT -ne 0 ]; then
     exit $PIPE_SCR_RESULT
-fi"
+fi
+[[ ${DEBUG_EXTENSION} -eq 1 ]] && set +x
+"
     }
     },
-    "project": "https://github.com/Osthanes/update_service",
+    "project": "https://github.com/IBMActiveDeploy-Toolchain/update_service",
     "project_example": "https://github.com/IBM-Bluemix/active-deploy/",
-    "project_contact": "eergun@us.ibm.com"
+    "project_contact": "taube@de.ibm.com"
 }
