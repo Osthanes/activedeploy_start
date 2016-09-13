@@ -70,7 +70,7 @@
 # The following variables may be defined as environment properties:
 # GROUP_SIZE: The number of instances that are created during initial deployment. The default value is 1.
 # CONCURRENT_VERSIONS: The number of application versions to keep at the end of deployment. The default value is 2.
-#
+# AD_INSTANCE_NAME: The name for Active Deploy Instance, if it does not yet exist. The default value is activedeploy-for-pipeline.
 
 source ${EXT_DIR}/git_util.sh
 git_retry clone https://github.com/IBMActiveDeploy-Toolchain/update_service.git activedeploy 2>/tmp/$$
