@@ -34,3 +34,4 @@ popd >/dev/null
 
 # Call common initialization
 source $SCRIPTDIR/common/init.sh
+return 0
