@@ -16,8 +16,6 @@
 #   limitations under the License.
 #********************************************************************************
 
-set +e
-
 # Configure extension PATH
 SCRIPTDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
@@ -34,4 +32,3 @@ popd >/dev/null
 
 # Call common initialization
 source $SCRIPTDIR/common/init.sh
-return 0
