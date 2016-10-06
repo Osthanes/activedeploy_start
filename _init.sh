@@ -16,6 +16,8 @@
 #   limitations under the License.
 #********************************************************************************
 
+set +e
+
 # Configure extension PATH
 SCRIPTDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
