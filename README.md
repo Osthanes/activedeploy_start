@@ -1,3 +1,6 @@
+# Note
+This service is being deprecated. For more information about the deprecation of this service, see https://www.ibm.com/blogs/bluemix/2017/05/retirement-ibm-active-deploy-beta-service/ 
+
 # activedeploy_start
 
 An [IBM® Bluemix® DevOps Services Build & Deploy](https://hub.jazz.net/docs/deploy/) pipeline extension used to begin an active deploy for Cloud Foundry applications and IBM Containers.
